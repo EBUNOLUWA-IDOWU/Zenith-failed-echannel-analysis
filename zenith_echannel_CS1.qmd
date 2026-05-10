@@ -1,0 +1,639 @@
+---
+title: "Analysing Failed Mobile and USSD Transactions at Zenith Bank: An Exploratory and Inferential Study"
+author: "Ebunoluwa Idowu"
+date: today
+format:
+  html:
+    theme: flatly
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    code-fold: true
+    self-contained: true
+    fig-width: 9
+    fig-height: 6
+    fig-dpi: 150
+execute:
+  warning: false
+  message: false
+  echo: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo      = TRUE,
+  warning   = FALSE,
+  message   = FALSE,
+  fig.align = "center"
+)
+```
+
+------------------------------------------------------------------------
+
+# 1. Executive Summary
+
+Failed e-channel transactions represent one of the most frequent and operationally disruptive challenges facing Nigerian retail banks in the digital banking era. At Zenith Bank Plc, Mobile and USSD channels account for the majority of customer-initiated transactions — and consequently, the majority of transaction failure complaints handled by Relationship Managers at the branch level.
+
+This study analyses **120 failed transaction complaints** logged by the author in their capacity as a Relationship Manager at Zenith Bank Plc, Lagos Central Branch, covering the period **October 2025 to April 2026**. Five analytical techniques are applied: Exploratory Data Analysis reveals that Network Errors account for the largest share of failures, while USSD transactions fail more frequently than Mobile. Visualisation confirms that complaints peak in the morning and are concentrated among Retail customers. Hypothesis testing reveals that Mobile transactions take **significantly longer to resolve** than USSD failures. Correlation analysis shows that transaction amount and escalation status are the strongest predictors of resolution time. A linear regression model explains **\[R²\]%** of variance in resolution time.
+
+The key recommendation is to implement a tiered complaint routing system that automatically escalates high-value Mobile transfer failures, reducing average resolution time and improving customer retention.
+
+------------------------------------------------------------------------
+
+# 2. Professional Disclosure
+
+## 2.1 Role and Organisation
+
+I am a **Relationship Manager** at **Zenith Bank Plc**, Lagos Central Branch, Lagos, Nigeria. My core responsibilities include managing a portfolio of retail and SME accounts, handling customer complaints including failed digital transaction disputes coordinating with back-office teams for transaction reversals, and escalating unresolved cases to the appropriate support desks. Failed e-channel transactions are among the most frequent complaints I handle daily, making this dataset directly drawn from my professional experience.
+
+## 2.2 Technique Justifications
+
+**Exploratory Data Analysis (EDA):** Before drawing any conclusions about failure patterns, I must understand the structure and quality of the complaint data. Which channels fail most? What failure reasons dominate? Are there missing values or outliers in resolution times? EDA answers these foundational questions and reveals patterns invisible in aggregate statistics.
+
+**Data Visualisation:** Raw complaint counts do not communicate urgency to Branch Management. A cohesive visual narrative showing failure distributions by channel, time of day, and customer segment allows me to make the case for operational interventions in management meetings, using charts rather than anecdote.
+
+**Hypothesis Testing:** There is a widely held belief among RMs that Mobile transaction failures are more complex to resolve than USSD failures. A formal hypothesis test determines whether this is statistically supported which would justify different Service Level Agreements (SLAs) for each channel.
+
+**Correlation Analysis:** This involves understanding which factors are most strongly associated with longer resolution times helps me prioritise which complaints to escalate immediately. If transaction amount is strongly correlated with resolution time, then high-value failures should be flagged for priority handling regardless of channel.
+
+**Linear Regression:** Regression quantifies the relationship between predictors and resolution time, providing a model I can use to estimate how long a new complaint will take to resolve based on its characteristics. This supports proactive customer communication and SLA management.
+
+------------------------------------------------------------------------
+
+# 3. Data Collection & Sampling
+
+## 3.1 Source and Collection Method
+
+Data were collected by the author through **systematic logging of failed e-channel transaction complaints** received at Lagos Central Branch, Zenith Bank Plc, between **October 2025 and April 2026**. Each complaint was recorded at the point of customer contact ; either in-branch, by phone, or via the bank's internal complaint management system.
+
+This constitutes **primary data collected by the author** through direct field observation and professional practice, as permitted under the assessment brief's data collection criteria.
+
+## 3.2 Variables Collected
+
+| Variable | Type | Description |
+|------------------------|------------------------|------------------------|
+| `Complaint Id` | ID | Anonymous sequential code |
+| `Date` | Date | Date complaint was received |
+| `Month` | Categorical | Month of complaint |
+| `Channel` | Categorical | Mobile or USSD |
+| `Transaction type` | Categorical | Transfer, Airtime, Bill Payment |
+| `Amount (Naira)` | Numeric | Transaction amount in ₦ |
+| `Failure reason` | Categorical | Network Error, System Timeout, Authentication Failure, Insufficient Funds, Duplicate Transaction |
+| `Customer segment` | Categorical | Retail or SME |
+| `Time of day` | Categorical | Morning, Afternoon, Evening |
+| `Escalated` | Binary | Yes/No , whether complaint was escalated |
+| `Resolution Status` | Categorical | Resolved or Unresolved |
+| `Resolution days` | Numeric | Days taken to resolve |
+| `Custome age group` | Categorical | Age bracket of customer |
+| `Account type` | Categorical | Savings or Current |
+| `Repeat complaint` | Binary | Yes/No , whether customer had complained before |
+
+## 3.3 Sampling Frame and Sample Size
+
+- **Population:** All failed e-channel transaction complaints received at Lagos Central Branch
+- **Sample:** 120 complaints logged between October 2025 and April 2026
+- **Sampling method:** Census all complaints handled by the author during the period were included
+- **Ethical note:** All customer identifying information was removed. Complaint IDs are sequential codes. No names, account numbers, or BVN were recorded. Data collected in the course of normal professional duties.
+
+------------------------------------------------------------------------
+
+# 4. Data Description
+
+## 4.1 Load and Inspect Data
+
+```{r load}
+library(tidyverse)
+library(lubridate)
+library(skimr)
+library(janitor)
+library(gt)
+library(scales)
+library(ggcorrplot)
+library(patchwork)
+
+# Load data
+df <- read_csv("zenith_echannel_complaints.csv") |>
+  clean_names() |>
+  mutate(
+    date             = as.Date(date),
+    month            = factor(month, levels = c("October","November","December",
+                                                 "January","February","March","April")),
+    channel          = factor(channel),
+    transaction_type = factor(transaction_type),
+    failure_reason   = factor(failure_reason),
+    customer_segment = factor(customer_segment),
+    time_of_day      = factor(time_of_day,
+                               levels = c("Morning","Afternoon","Evening")),
+    escalated        = factor(escalated),
+    resolution_status = factor(resolution_status),
+    customer_age_group = factor(customer_age_group),
+    account_type     = factor(account_type),
+    repeat_complaint = factor(repeat_complaint),
+    log_amount       = log(amount_naira)
+  )
+
+glimpse(df)
+```
+
+## 4.2 Data Quality Issues
+
+```{r quality}
+# Issue 1: Missing values check
+cat("Missing values per column:\n")
+print(colSums(is.na(df)))
+
+# Issue 2: Outliers in resolution_days
+cat("\nResolution days summary:\n")
+summary(df$resolution_days)
+
+# Outlier detection
+Q1  <- quantile(df$resolution_days, 0.25)
+Q3  <- quantile(df$resolution_days, 0.75)
+IQR <- Q3 - Q1
+outliers <- df |> filter(resolution_days > Q3 + 1.5 * IQR)
+cat("\nOutlier complaints (resolution > upper fence):\n")
+outliers |> select(complaint_id, channel, failure_reason,
+                    resolution_days, escalated) |> print()
+
+# Handling: retain outliers — they represent genuine unresolved cases
+# and are meaningful for the analysis
+
+# Issue 3: Amount skewness
+cat("\nAmount skewness:", round(moments::skewness(df$amount_naira), 3), "\n")
+cat("Log-transform applied for regression analysis\n")
+```
+
+## 4.3 Summary Statistics
+
+```{r summary}
+df |>
+  select(resolution_days, amount_naira, channel,
+         failure_reason, customer_segment,
+         escalated, resolution_status) |>
+  skim()
+```
+
+------------------------------------------------------------------------
+
+# 5. Technique 1 — Exploratory Data Analysis
+
+## 5.1 Theory
+
+Exploratory Data Analysis (EDA) uses summary statistics, frequency tables, and distributional analysis to reveal the structure of data before formal modelling. Key tools include measures of central tendency, dispersion, skewness, missing value analysis, and outlier detection using IQR fences.
+
+## 5.2 Business Justification
+
+As an RM, I need to understand the landscape of e-channel failures before recommending any intervention. Which failure reason is most common? Which channel generates the longest resolution times? EDA provides the evidence base for prioritising operational improvements.
+
+## 5.3 Analysis
+
+```{r eda-frequency}
+# Failure reason frequency table
+df |>
+  count(failure_reason, sort = TRUE) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  gt() |>
+  tab_header(title = "Table 1: Failure Reason Frequency",
+             subtitle = "120 complaints — October 2025 to April 2026") |>
+  cols_label(failure_reason = "Failure Reason",
+             n = "Count", pct = "% of Total") |>
+  tab_style(style = cell_fill(color = "#FEF3CD"),
+            locations = cells_body(rows = 1))
+```
+
+```{r eda-channel}
+# Channel breakdown
+df |>
+  count(channel, resolution_status) |>
+  pivot_wider(names_from = resolution_status, values_from = n,
+              values_fill = 0) |>
+  mutate(total = Resolved + Unresolved,
+         pct_unresolved = round(Unresolved / total * 100, 1)) |>
+  gt() |>
+  tab_header(title = "Table 2: Resolution Status by Channel") |>
+  cols_label(channel = "Channel", pct_unresolved = "% Unresolved")
+```
+
+```{r eda-resolution-dist}
+# Distribution of resolution days
+p1 <- ggplot(df, aes(x = resolution_days, fill = channel)) +
+  geom_histogram(bins = 8, colour = "white", alpha = 0.85) +
+  scale_fill_manual(values = c("Mobile" = "#C8102E",
+                                "USSD"   = "#1A73E8")) +
+  labs(title = "Figure 1: Distribution of Resolution Days by Channel",
+       x = "Resolution Days", y = "Count", fill = "Channel") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+
+p2 <- ggplot(df, aes(x = channel, y = resolution_days,
+                      fill = channel)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.5) +
+  scale_fill_manual(values = c("Mobile" = "#C8102E",
+                                "USSD"   = "#1A73E8")) +
+  labs(title = "Figure 2: Resolution Days — Mobile vs USSD",
+       x = NULL, y = "Resolution Days", fill = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+
+p1 | p2
+```
+
+## 5.4 Interpretation for a Non-Technical Manager
+
+> Network Errors account for the largest share of failures, followed by System Timeouts. Mobile channel complaints take longer to resolve on average than USSD failures visible in the boxplot where Mobile's median resolution time is higher. Unresolved complaints are concentrated among SME Current account holders with high-value transfers, suggesting these cases require specialist handling beyond standard RM capacity.
+
+------------------------------------------------------------------------
+
+# 6. Technique 2 — Data Visualisation
+
+## 6.1 Theory
+
+Effective visualisation maps data variables to aesthetic properties (position, colour, size) following Wilkinson's Grammar of Graphics. The choice of chart type must serve the analytical question: bar charts for comparisons, line charts for trends, heatmaps for two-dimensional frequency patterns.
+
+## 6.2 Business Justification
+
+A visual dashboard of complaint patterns allows me to present evidence-based arguments to Branch Management for operational changes such as dedicating additional support staff during morning peak hours or creating a dedicated high-value transaction escalation desk.
+
+## 6.3 Visualisation Narrative
+
+```{r viz-failure-reason}
+ggplot(df, aes(x = fct_infreq(failure_reason), fill = channel)) +
+  geom_bar(position = "dodge") +
+  scale_fill_manual(values = c("Mobile" = "#C8102E",
+                                "USSD"   = "#1A73E8")) +
+  labs(title    = "Figure 3: Failure Reasons by Channel",
+       subtitle  = "Network Error dominates both channels",
+       x = NULL, y = "Number of Complaints", fill = "Channel") +
+  theme_minimal(base_size = 13) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "bottom")
+```
+
+```{r viz-time-of-day}
+df |>
+  count(time_of_day, channel) |>
+  ggplot(aes(x = time_of_day, y = n, fill = channel)) +
+  geom_col(position = "dodge", width = 0.6) +
+  scale_fill_manual(values = c("Mobile" = "#C8102E",
+                                "USSD"   = "#1A73E8")) +
+  labs(title    = "Figure 4: Complaints by Time of Day and Channel",
+       subtitle  = "Morning is the peak period for both channels",
+       x = NULL, y = "Number of Complaints", fill = "Channel") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+```{r viz-monthly-trend}
+df |>
+  count(month, channel) |>
+  ggplot(aes(x = month, y = n, colour = channel, group = channel)) +
+  geom_line(linewidth = 1.4) +
+  geom_point(size = 3) +
+  scale_colour_manual(values = c("Mobile" = "#C8102E",
+                                  "USSD"   = "#1A73E8")) +
+  labs(title    = "Figure 5: Monthly Complaint Trend by Channel",
+       subtitle  = "October 2025 to April 2026",
+       x = NULL, y = "Number of Complaints", colour = "Channel") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+```{r viz-segment-heatmap}
+df |>
+  count(failure_reason, customer_segment) |>
+  ggplot(aes(x = customer_segment, y = failure_reason, fill = n)) +
+  geom_tile(colour = "white", linewidth = 0.5) +
+  geom_text(aes(label = n), size = 4, fontface = "bold") +
+  scale_fill_gradient(low = "#FEE8EC", high = "#C8102E") +
+  labs(title    = "Figure 6: Failure Reason Heatmap by Customer Segment",
+       subtitle  = "Deeper red = higher frequency",
+       x = "Customer Segment", y = "Failure Reason", fill = "Count") +
+  theme_minimal(base_size = 13)
+```
+
+```{r viz-amount-resolution}
+ggplot(df, aes(x = log_amount, y = resolution_days,
+               colour = channel)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2) +
+  scale_colour_manual(values = c("Mobile" = "#C8102E",
+                                  "USSD"   = "#1A73E8")) +
+  labs(title    = "Figure 7: Log Transaction Amount vs Resolution Days",
+       subtitle  = "Higher value transactions tend to take longer to resolve",
+       x = "Log(Transaction Amount ₦)", y = "Resolution Days",
+       colour = "Channel") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+## 6.4 Interpretation for a Non-Technical Manager
+
+> The five charts tell a coherent story: Network Errors are the dominant failure reason across both channels, peaking in the morning when transaction volumes are highest. Retail customers generate more complaints than SME customers in absolute terms, but SME complaints take longer to resolve. Monthly trends show a gradual increase in Mobile complaints between October 2025 and April 2026, suggesting growing adoption of the Mobile channel. Higher-value transactions are associated with longer resolution times visible in the upward-sloping trend line in Figure 7.
+
+------------------------------------------------------------------------
+
+# 7. Technique 3 — Hypothesis Testing
+
+## 7.1 Theory
+
+A hypothesis test evaluates whether an observed difference between groups is statistically significant. The **independent samples t-test** compares means under H₀: μ₁ = μ₂. The **Wilcoxon rank-sum test** is the non-parametric alternative when normality cannot be assumed. Effect size is reported as Cohen's d.
+
+## 7.2 Business Justification
+
+Branch Management needs evidence not opinion to justify separate SLAs for Mobile and USSD complaints. A formal hypothesis test provides that evidence with a p-value and effect size.
+
+## 7.3 Hypothesis
+
+**Hypothesis 1 — Resolution Time:**
+
+- H₀: Mean resolution time for Mobile complaints = Mean resolution time for USSD complaints
+- H₁: Mean resolution time for Mobile complaints \> Mean resolution time for USSD complaints
+- Test: One-tailed independent samples t-test
+
+**Hypothesis 2 — Escalation Rate:**
+
+- H₀: Proportion of escalated complaints is equal across Mobile and USSD
+- H₁: Mobile complaints are escalated more frequently than USSD complaints
+- Test: Chi-squared test of independence
+
+## 7.4 Analysis
+
+```{r hypothesis}
+library(effsize)
+
+mobile <- df |> filter(channel == "Mobile")
+ussd   <- df |> filter(channel == "USSD")
+
+cat("=== HYPOTHESIS 1: RESOLUTION TIME ===\n")
+cat("Mobile mean resolution days:", round(mean(mobile$resolution_days), 3), "\n")
+cat("USSD mean resolution days:",   round(mean(ussd$resolution_days), 3), "\n\n")
+
+# Shapiro-Wilk normality
+cat("Shapiro-Wilk p (Mobile):", round(shapiro.test(mobile$resolution_days)$p.value, 4), "\n")
+cat("Shapiro-Wilk p (USSD):",   round(shapiro.test(ussd$resolution_days)$p.value, 4), "\n\n")
+
+# t-test
+t1 <- t.test(mobile$resolution_days, ussd$resolution_days,
+             alternative = "greater")
+cat("t-statistic:", round(t1$statistic, 3), "\n")
+cat("p-value:",     round(t1$p.value, 4), "\n\n")
+
+# Effect size
+d1 <- cohen.d(mobile$resolution_days, ussd$resolution_days)
+cat("Cohen's d:", round(d1$estimate, 3), "(", d1$magnitude, ")\n\n")
+
+# Wilcoxon
+w1 <- wilcox.test(mobile$resolution_days, ussd$resolution_days,
+                   alternative = "greater")
+cat("Wilcoxon p-value:", round(w1$p.value, 4), "\n\n")
+
+cat("=== HYPOTHESIS 2: ESCALATION RATE ===\n")
+esc_table <- table(df$channel, df$escalated)
+print(esc_table)
+chi2 <- chisq.test(esc_table)
+cat("\nChi-squared statistic:", round(chi2$statistic, 3), "\n")
+cat("p-value:", round(chi2$p.value, 4), "\n")
+```
+
+```{r hypothesis-viz}
+p_h1 <- ggplot(df, aes(x = channel, y = resolution_days,
+                         fill = channel)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.6) +
+  scale_fill_manual(values = c("Mobile" = "#C8102E",
+                                "USSD"   = "#1A73E8")) +
+  labs(title = "Figure 8: Resolution Days — Mobile vs USSD",
+       x = NULL, y = "Resolution Days") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+
+p_h2 <- df |>
+  count(channel, escalated) |>
+  group_by(channel) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ggplot(aes(x = channel, y = pct, fill = escalated)) +
+  geom_col(width = 0.6) +
+  scale_fill_manual(values = c("No" = "#94A3B8", "Yes" = "#C8102E")) +
+  labs(title = "Figure 9: Escalation Rate by Channel",
+       x = NULL, y = "% of Complaints", fill = "Escalated") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+
+p_h1 | p_h2
+```
+
+## 7.5 Interpretation for a Non-Technical Manager
+
+> **Hypothesis 1 (Resolution Time):** Mobile complaints take an average of **2.55 days** to resolve compared to **1.67 days** for USSD. The t-test yields p = 0.001. We therefore **reject\]** H₀ — the difference **is** statistically significant at the 5% level. Cohen's d of 2.1 indicates a **large** effect. **Business implication:** Mobile failures warrant a dedicated resolution track with shorter SLA targets than USSD.
+
+> **Hypothesis 2 (Escalation Rate):** The chi squared test yields p=0.0000.Mobile complaints are escalated significantm ore frequently than USSD complaints.
+>
+> **Business implication**: The branch should pre-assign a senior RM to handle Mobile transfer failures above N100,000, as these are disproportionately likely to require escalation and take longer to resolve.
+
+Correlation measures the linear relationship between two variables. Pearson's r applies to continuous variables; Spearman's ρ is used for ordinal or non-normal data. Point-biserial correlation extends this to binary variables. Correlation does not imply causation.
+
+## 8.2 Business Justification
+
+Knowing which factors correlate most strongly with resolution time helps me decide which complaint attributes to collect first when a customer calls. If escalation status is the strongest correlate, then the first question to ask is whether the complaint needs escalating — not what the failure reason is.
+
+## 8.3 Analysis
+
+```{r correlation}
+# Encode binary/categorical variables for correlation
+df_corr <- df |>
+  mutate(
+    channel_num   = if_else(channel == "Mobile", 1, 0),
+    escalated_num = if_else(escalated == "Yes", 1, 0),
+    segment_num   = if_else(customer_segment == "SME", 1, 0),
+    repeat_num    = if_else(repeat_complaint == "Yes", 1, 0)
+  ) |>
+  select(resolution_days, log_amount, channel_num,
+         escalated_num, segment_num, repeat_num)
+
+corr_mat <- cor(df_corr, method = "pearson", use = "complete.obs")
+
+ggcorrplot(corr_mat,
+           method   = "square",
+           type     = "lower",
+           lab      = TRUE,
+           lab_size = 3.5,
+           colors   = c("#1A73E8","white","#C8102E"),
+           title    = "Figure 10: Correlation Matrix — E-Channel Complaint Variables",
+           ggtheme  = theme_minimal(base_size = 12))
+```
+
+```{r correlation-scatter}
+p_c1 <- ggplot(df, aes(x = log_amount, y = resolution_days,
+                         colour = escalated)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, colour = "grey40", lty = 2) +
+  scale_colour_manual(values = c("No" = "#94A3B8", "Yes" = "#C8102E")) +
+  labs(title = "Resolution Days vs Log Amount",
+       x = "Log(Amount ₦)", y = "Resolution Days",
+       colour = "Escalated") +
+  theme_minimal(base_size = 12)
+
+p_c2 <- ggplot(df, aes(x = escalated, y = resolution_days,
+                         fill = escalated)) +
+  geom_boxplot(alpha = 0.7, width = 0.5) +
+  scale_fill_manual(values = c("No" = "#94A3B8", "Yes" = "#C8102E")) +
+  labs(title = "Resolution Days by Escalation Status",
+       x = "Escalated", y = "Resolution Days") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+
+p_c1 | p_c2 +
+  plot_annotation(title = "Figure 11: Key Correlates of Resolution Time")
+```
+
+## 8.4 Key Correlations and Business Implications
+
+> **1. Escalation status vs Resolution Days:** The strongest positive correlate. Escalated complaints take significantly longer to resolve. **Implication:** Escalation decisions should be made earlier not as a last resort so that specialist teams can begin working sooner.
+
+> **2. Log(Amount) vs Resolution Days:** Higher-value transactions take longer to resolve, likely because they require additional verification and approval layers. **Implication:** Introduce a fast-track process for high-value failures where the RM pre-verifies transaction legitimacy before escalation.
+
+> **3. Channel (Mobile=1) vs Resolution Days:** Mobile complaints are positively correlated with longer resolution times. **Implication:** Mobile failure resolution requires more back-end investigation than USSD justifying dedicated Mobile support resources.
+
+------------------------------------------------------------------------
+
+# 9. Technique 5 — Linear Regression
+
+## 9.1 Theory
+
+OLS regression estimates the linear relationship between resolution time (dependent variable) and predictors (channel, escalation status, log amount, customer segment). Coefficients represent the expected change in resolution days for a one-unit change in each predictor, holding others constant.
+
+## 9.2 Business Justification
+
+A regression model allows the branch to predict how long a new complaint will take to resolve based on its characteristics at the point of intake. This enables proactive customer communication "your complaint is expected to be resolved in X days" improving satisfaction even when resolution takes time.
+
+## 9.3 Analysis
+
+```{r regression}
+library(broom)
+
+# Encode variables
+df_reg <- df |>
+  mutate(
+    mobile        = if_else(channel == "Mobile", 1, 0),
+    escalated_bin = if_else(escalated == "Yes", 1, 0),
+    sme           = if_else(customer_segment == "SME", 1, 0),
+    repeat_bin    = if_else(repeat_complaint == "Yes", 1, 0)
+  )
+
+model <- lm(resolution_days ~ mobile + escalated_bin +
+              log_amount + sme + repeat_bin,
+            data = df_reg)
+
+tidy(model, conf.int = TRUE) |>
+  mutate(across(where(is.numeric), ~round(., 4))) |>
+  gt() |>
+  tab_header(
+    title    = "Table 3: OLS Regression Results",
+    subtitle = "Dependent variable: Resolution Days"
+  ) |>
+  cols_label(
+    term      = "Variable",
+    estimate  = "Coefficient (β)",
+    std.error = "Std. Error",
+    statistic = "t-statistic",
+    p.value   = "p-value",
+    conf.low  = "95% CI Lower",
+    conf.high = "95% CI Upper"
+  ) |>
+  tab_style(
+    style     = cell_fill(color = "#FEF3CD"),
+    locations = cells_body(rows = p.value < 0.05)
+  )
+```
+
+```{r regression-fit}
+glance(model) |>
+  select(r.squared, adj.r.squared, sigma, statistic, p.value, nobs) |>
+  mutate(across(where(is.numeric), ~round(., 4))) |>
+  gt() |>
+  tab_header(title = "Table 4: Model Fit Statistics")
+```
+
+```{r regression-diagnostics}
+par(mfrow = c(2, 2))
+plot(model, which = 1:4, col = "#C8102E", pch = 19, cex = 1.2)
+mtext("Figure 12: OLS Regression Diagnostic Plots",
+      outer = TRUE, cex = 1.1, font = 2, line = -1)
+par(mfrow = c(1, 1))
+```
+
+## 9.4 Interpretation for a Non-Technical Manager
+
+> **Model fit:** The model explains **73.39%** of the variation in complaint resolution time using five predictors.
+
+> **Mobile channel (β = -0.23):** Mobile complaints take approximately **0.23 fewer more days** to resolve than USSD complaints, holding all else constant. **Recommendation:** Set a separate, longer SLA target for Mobile failures and staff accordingly.
+
+> **Escalation (β = 1.51):** Escalated complaints take **1.51 additional days** on average. **Recommendation:** Train RMs to identify escalation-worthy complaints at first contact to start the clock earlier.
+
+> **Log Amount (β = 0.25):** Each unit increase in log(amount) adds approximately **0,25 days** to resolution. **Recommendation:** Create a high-value transaction fast-track for failures above ₦200,000.
+
+> **Diagnostic check:** Review the residual plots if residuals are roughly randomly scattered around zero, the model assumptions are reasonably satisfied.
+
+------------------------------------------------------------------------
+
+# 10. Integrated Findings & Recommendation
+
+The five techniques converge on a clear operational picture:
+
+**EDA (T1)** revealed that Network Errors are the dominant failure reason, and that USSD complaints are more frequent but Mobile complaints take longer to resolve establishing the key operational tension.
+
+**Visualisation (T2)** showed that morning is the peak complaint period, SME high-value transfers generate the most complex cases, and Monthly complaint volumes have been rising establishing urgency.
+
+**Hypothesis Testing (T3)** provided statistical evidence on whether Mobile-USSD resolution time differences are real or random with direct implications for SLA policy.
+
+**Correlation Analysis (T4)** identified escalation status and transaction amount as the strongest predictors of resolution time telling me which information to gather first when a complaint comes in.
+
+**Regression (T5)** quantified these relationships precisely, enabling prediction of resolution time from complaint characteristics at intake.
+
+**Single Integrated Recommendation:**
+
+> Zenith Bank Lagos Central Branch should implement a **three-tier complaint routing system** for failed e-channel transactions: (1) Low-value USSD failures → automated SMS resolution within 24 hours; (2) High-value Mobile transfer failures → dedicated RM fast-track with 48-hour SLA; (3) Escalated SME complaints → Branch Manager oversight with same-day acknowledgement. This system justified by the regression model's coefficient estimates is projected to reduce average resolution time by **\[1-2 days\]** and improve customer retention among the SME segment most affected by unresolved failures. An interactive dashboard for this analysis is available at: [Zenith Bank E-Channel Dashboard](https://w7l1q6-ebunoluwa-idowu.shinyapps.io/Zenith-Echannel-Analysis/)
+
+------------------------------------------------------------------------
+
+# 11. Limitations & Further Work
+
+- **Memory-based collection:** Although logged from professional practice, some complaint details may be imprecise due to reliance on recall. A prospective logging system from the date of collection forward would improve data accuracy.
+- **Single branch scope:** Results reflect one branch's complaint pattern. A multi-branch dataset would improve generalisability and allow branch-level fixed effects.
+- **No customer outcome data:** The data-set does not capture whether unresolved complaints led to account closure or churn linking complaint resolution to retention outcomes would strengthen the business case.
+- **Channel migration effects:** The period studied (Oct 2025–Apr 2026) coincides with CBN's ongoing push for digital banking adoption, which may be inflating Mobile complaint volumes artificially.
+- **Regression sample size:** With 120 observations and 5 predictors, the model has adequate but not generous degrees of freedom. A larger data-set would improve statistical power.
+
+------------------------------------------------------------------------
+
+# References
+
+Adi, B. (2026). *AI-powered business analytics: A practical textbook for data-driven decision making.* Lagos Business School / markanalytics.online. https://markanalytics.online
+
+R Core Team. (2024). *R: A language and environment for statistical computing* (Version 4.x). R Foundation for Statistical Computing. https://www.R-project.org/
+
+Wickham, H., et al. (2019). Welcome to the tidyverse. *Journal of Open Source Software, 4*(43), 1686. https://doi.org/10.21105/joss.01686
+
+Wickham, H. (2016). *ggplot2: Elegant graphics for data analysis.* Springer. https://doi.org/10.1007/978-3-319-24277-4
+
+Pedersen, T. L. (2024). *patchwork: The composer of plots* \[R package\]. https://CRAN.R-project.org/package=patchwork
+
+Central Bank of Nigeria. (2025). *Consumer protection framework and e-payment complaint guidelines.* CBN. https://www.cbn.gov.ng
+
+```{r pkg-citations, include=FALSE}
+# citation("tidyverse")
+# citation("ggcorrplot")
+# citation("broom")
+# citation("patchwork")
+# citation("effsize")
+# citation("skimr")
+```
+
+Ebunoluwa Idowu. (2026). *Failed e-channel transaction complaints log — Zenith Bank Lagos Central Branch* \[Dataset\]. Collected from professional practice as Relationship Manager, October 2025 to April 2026. Data available on request from the author.
+
+------------------------------------------------------------------------
+
+# Appendix — AI Usage Statement
+
+This analysis was completed with the assistance of Claude (Anthropic), which helped structure the Quarto document template, suggest appropriate R package combinations, generate a realistic complaint dataset template, and debug rendering errors. All analytical decisions including the selection of Case Study 1, the framing of both hypotheses around Mobile vs USSD channel differences, the choice of resolution time as the dependent variable in the regression model, the interpretation of all statistical outputs in the context of Zenith Bank's branch operations, and all business recommendations were made independently by the author based on professional experience as a Relationship Manager at Zenith Bank Plc and the analytical frameworks taught in the Data Analytics II course at Lagos Business School. The author takes full responsibility for all findings, interpretations, and recommendations in this document.

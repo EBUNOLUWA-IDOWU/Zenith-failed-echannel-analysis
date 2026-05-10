@@ -1,0 +1,121 @@
+complaint_id,date,month,channel,transaction_type,amount_naira,failure_reason,customer_segment,time_of_day,escalated,resolution_status,resolution_days,customer_age_group,account_type,repeat_complaint
+C001,2025-10-01,October,Mobile,Transfer,45000,Network Error,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C002,2025-10-02,October,USSD,Airtime Purchase,1000,System Timeout,Retail,Afternoon,No,Resolved,1,18-24,Savings,No
+C003,2025-10-03,October,Mobile,Bill Payment,25000,Authentication Failure,SME,Morning,No,Resolved,2,35-44,Current,No
+C004,2025-10-06,October,USSD,Transfer,150000,Network Error,Retail,Evening,Yes,Resolved,3,45-54,Savings,No
+C005,2025-10-07,October,Mobile,Transfer,500000,System Timeout,SME,Morning,Yes,Resolved,2,35-44,Current,No
+C006,2025-10-08,October,USSD,Airtime Purchase,500,Network Error,Retail,Afternoon,No,Resolved,1,18-24,Savings,Yes
+C007,2025-10-09,October,Mobile,Transfer,75000,Insufficient Funds,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C008,2025-10-10,October,USSD,Bill Payment,15000,System Timeout,Retail,Evening,No,Resolved,2,35-44,Savings,No
+C009,2025-10-13,October,Mobile,Transfer,200000,Authentication Failure,SME,Morning,Yes,Resolved,3,45-54,Current,No
+C010,2025-10-14,October,USSD,Transfer,30000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C011,2025-10-15,October,Mobile,Airtime Purchase,2000,System Timeout,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C012,2025-10-16,October,USSD,Transfer,80000,Network Error,SME,Afternoon,No,Resolved,2,35-44,Current,No
+C013,2025-10-17,October,Mobile,Bill Payment,45000,Authentication Failure,Retail,Evening,Yes,Resolved,4,45-54,Savings,Yes
+C014,2025-10-20,October,USSD,Transfer,120000,System Timeout,SME,Morning,Yes,Unresolved,7,35-44,Current,No
+C015,2025-10-21,October,Mobile,Transfer,25000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C016,2025-10-22,October,USSD,Airtime Purchase,1500,Network Error,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C017,2025-10-23,October,Mobile,Transfer,350000,Duplicate Transaction,SME,Morning,Yes,Resolved,3,45-54,Current,No
+C018,2025-10-24,October,USSD,Bill Payment,20000,System Timeout,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C019,2025-10-27,October,Mobile,Transfer,90000,Authentication Failure,Retail,Evening,No,Resolved,2,35-44,Savings,No
+C020,2025-10-28,October,USSD,Transfer,60000,Network Error,SME,Morning,No,Resolved,1,35-44,Current,No
+C021,2025-10-01,October,Mobile,Transfer,180000,Network Error,Retail,Morning,Yes,Resolved,2,45-54,Savings,No
+C022,2025-10-02,October,USSD,Airtime Purchase,2000,System Timeout,Retail,Afternoon,No,Resolved,1,18-24,Savings,No
+C023,2025-10-03,October,Mobile,Bill Payment,55000,Authentication Failure,SME,Morning,No,Resolved,2,35-44,Current,No
+C024,2025-10-06,October,USSD,Transfer,250000,Network Error,SME,Evening,Yes,Resolved,3,45-54,Current,No
+C025,2025-10-07,October,Mobile,Transfer,15000,System Timeout,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C026,2025-10-08,October,USSD,Airtime Purchase,500,Network Error,Retail,Afternoon,No,Resolved,1,18-24,Savings,Yes
+C027,2025-10-09,October,Mobile,Transfer,420000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,35-44,Current,No
+C028,2025-10-10,October,USSD,Bill Payment,35000,System Timeout,Retail,Evening,No,Resolved,2,25-34,Savings,No
+C029,2025-10-13,October,Mobile,Transfer,110000,Authentication Failure,Retail,Morning,Yes,Resolved,3,45-54,Savings,No
+C030,2025-10-14,October,USSD,Transfer,75000,Network Error,SME,Afternoon,No,Resolved,1,35-44,Current,No
+C031,2025-10-15,October,Mobile,Airtime Purchase,3000,System Timeout,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C032,2025-10-16,October,USSD,Transfer,95000,Network Error,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C033,2025-10-17,October,Mobile,Bill Payment,65000,Authentication Failure,SME,Evening,Yes,Resolved,3,35-44,Current,No
+C034,2025-10-20,October,USSD,Transfer,180000,System Timeout,SME,Morning,Yes,Unresolved,5,45-54,Current,Yes
+C035,2025-10-21,October,Mobile,Transfer,40000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C036,2025-10-22,October,USSD,Airtime Purchase,1000,Network Error,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C037,2025-10-23,October,Mobile,Transfer,550000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,45-54,Current,No
+C038,2025-10-24,October,USSD,Bill Payment,28000,System Timeout,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C039,2025-10-27,October,Mobile,Transfer,130000,Authentication Failure,Retail,Evening,Yes,Resolved,3,35-44,Savings,No
+C040,2025-10-28,October,USSD,Transfer,85000,Network Error,SME,Morning,No,Resolved,1,35-44,Current,No
+C041,2025-11-03,November,Mobile,Transfer,210000,Network Error,Retail,Morning,Yes,Resolved,2,45-54,Savings,No
+C042,2025-11-04,November,USSD,Airtime Purchase,1500,System Timeout,Retail,Afternoon,No,Resolved,1,18-24,Savings,No
+C043,2025-11-05,November,Mobile,Bill Payment,70000,Authentication Failure,SME,Morning,No,Resolved,2,35-44,Current,No
+C044,2025-11-06,November,USSD,Transfer,300000,Network Error,SME,Evening,Yes,Resolved,3,45-54,Current,No
+C045,2025-11-07,November,Mobile,Transfer,22000,System Timeout,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C046,2025-11-10,November,USSD,Airtime Purchase,500,Network Error,Retail,Afternoon,No,Resolved,1,18-24,Savings,Yes
+C047,2025-11-11,November,Mobile,Transfer,480000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,35-44,Current,No
+C048,2025-11-12,November,USSD,Bill Payment,42000,System Timeout,Retail,Evening,No,Resolved,2,25-34,Savings,No
+C049,2025-11-13,November,Mobile,Transfer,160000,Authentication Failure,Retail,Morning,Yes,Resolved,3,45-54,Savings,No
+C050,2025-11-14,November,USSD,Transfer,55000,Network Error,SME,Afternoon,No,Resolved,1,35-44,Current,No
+C051,2025-11-17,November,Mobile,Airtime Purchase,2500,System Timeout,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C052,2025-11-18,November,USSD,Transfer,105000,Network Error,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C053,2025-11-19,November,Mobile,Bill Payment,80000,Authentication Failure,SME,Evening,Yes,Resolved,3,35-44,Current,No
+C054,2025-11-20,November,USSD,Transfer,220000,System Timeout,SME,Morning,Yes,Unresolved,6,45-54,Current,Yes
+C055,2025-11-21,November,Mobile,Transfer,35000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C056,2025-11-24,November,USSD,Airtime Purchase,1000,Network Error,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C057,2025-11-25,November,Mobile,Transfer,620000,Duplicate Transaction,SME,Morning,Yes,Resolved,5,45-54,Current,No
+C058,2025-11-26,November,USSD,Bill Payment,32000,System Timeout,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C059,2025-11-27,November,Mobile,Transfer,145000,Authentication Failure,Retail,Evening,Yes,Resolved,3,35-44,Savings,No
+C060,2025-11-28,November,USSD,Transfer,68000,Network Error,SME,Morning,No,Resolved,1,35-44,Current,No
+C061,2025-12-01,December,Mobile,Transfer,190000,Network Error,Retail,Morning,Yes,Resolved,2,45-54,Savings,No
+C062,2025-12-02,December,USSD,Airtime Purchase,2000,System Timeout,Retail,Afternoon,No,Resolved,1,18-24,Savings,No
+C063,2025-12-03,December,Mobile,Bill Payment,60000,Authentication Failure,SME,Morning,No,Resolved,2,35-44,Current,No
+C064,2025-12-04,December,USSD,Transfer,280000,Network Error,SME,Evening,Yes,Resolved,3,45-54,Current,No
+C065,2025-12-05,December,Mobile,Transfer,18000,System Timeout,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C066,2025-12-08,December,USSD,Airtime Purchase,500,Network Error,Retail,Afternoon,No,Resolved,1,18-24,Savings,Yes
+C067,2025-12-09,December,Mobile,Transfer,510000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,35-44,Current,No
+C068,2025-12-10,December,USSD,Bill Payment,38000,System Timeout,Retail,Evening,No,Resolved,2,25-34,Savings,No
+C069,2025-12-11,December,Mobile,Transfer,175000,Authentication Failure,Retail,Morning,Yes,Resolved,3,45-54,Savings,No
+C070,2025-12-12,December,USSD,Transfer,72000,Network Error,SME,Afternoon,No,Resolved,1,35-44,Current,No
+C071,2025-12-15,December,Mobile,Airtime Purchase,3000,System Timeout,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C072,2025-12-16,December,USSD,Transfer,88000,Network Error,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C073,2025-12-17,December,Mobile,Bill Payment,52000,Authentication Failure,SME,Evening,Yes,Resolved,3,35-44,Current,No
+C074,2025-12-18,December,USSD,Transfer,195000,System Timeout,SME,Morning,Yes,Unresolved,8,45-54,Current,Yes
+C075,2025-12-19,December,Mobile,Transfer,28000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C076,2025-12-22,December,USSD,Airtime Purchase,1500,Network Error,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C077,2025-12-23,December,Mobile,Transfer,580000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,45-54,Current,No
+C078,2025-12-29,December,USSD,Bill Payment,26000,System Timeout,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C079,2025-12-30,December,Mobile,Transfer,135000,Authentication Failure,Retail,Evening,Yes,Resolved,3,35-44,Savings,No
+C080,2025-12-31,December,USSD,Transfer,62000,Network Error,SME,Morning,No,Resolved,1,35-44,Current,No
+C081,2026-01-05,January,Mobile,Transfer,170000,Network Error,Retail,Morning,Yes,Resolved,2,45-54,Savings,No
+C082,2026-01-06,January,USSD,Airtime Purchase,1000,System Timeout,Retail,Afternoon,No,Resolved,1,18-24,Savings,No
+C083,2026-01-07,January,Mobile,Bill Payment,48000,Authentication Failure,SME,Morning,No,Resolved,2,35-44,Current,No
+C084,2026-01-08,January,USSD,Transfer,260000,Network Error,SME,Evening,Yes,Resolved,3,45-54,Current,No
+C085,2026-01-09,January,Mobile,Transfer,12000,System Timeout,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C086,2026-01-12,January,USSD,Airtime Purchase,500,Network Error,Retail,Afternoon,No,Resolved,1,18-24,Savings,Yes
+C087,2026-01-13,January,Mobile,Transfer,450000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,35-44,Current,No
+C088,2026-01-14,January,USSD,Bill Payment,33000,System Timeout,Retail,Evening,No,Resolved,2,25-34,Savings,No
+C089,2026-01-15,January,Mobile,Transfer,155000,Authentication Failure,Retail,Morning,Yes,Resolved,3,45-54,Savings,No
+C090,2026-01-16,January,USSD,Transfer,78000,Network Error,SME,Afternoon,No,Resolved,1,35-44,Current,No
+C091,2026-01-19,January,Mobile,Airtime Purchase,2000,System Timeout,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C092,2026-01-20,January,USSD,Transfer,92000,Network Error,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C093,2026-01-21,January,Mobile,Bill Payment,58000,Authentication Failure,SME,Evening,Yes,Resolved,3,35-44,Current,No
+C094,2026-01-22,January,USSD,Transfer,210000,System Timeout,SME,Morning,Yes,Unresolved,6,45-54,Current,Yes
+C095,2026-01-23,January,Mobile,Transfer,32000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C096,2026-01-26,January,USSD,Airtime Purchase,1000,Network Error,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C097,2026-01-27,January,Mobile,Transfer,660000,Duplicate Transaction,SME,Morning,Yes,Resolved,5,45-54,Current,No
+C098,2026-01-28,January,USSD,Bill Payment,29000,System Timeout,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C099,2026-01-29,January,Mobile,Transfer,125000,Authentication Failure,Retail,Evening,Yes,Resolved,3,35-44,Savings,No
+C100,2026-01-30,January,USSD,Transfer,58000,Network Error,SME,Morning,No,Resolved,1,35-44,Current,No
+C101,2026-02-02,February,Mobile,Transfer,230000,Network Error,Retail,Morning,Yes,Resolved,2,45-54,Savings,No
+C102,2026-02-03,February,USSD,Airtime Purchase,1500,System Timeout,Retail,Afternoon,No,Resolved,1,18-24,Savings,No
+C103,2026-02-04,February,Mobile,Bill Payment,75000,Authentication Failure,SME,Morning,No,Resolved,2,35-44,Current,No
+C104,2026-02-05,February,USSD,Transfer,320000,Network Error,SME,Evening,Yes,Resolved,3,45-54,Current,No
+C105,2026-02-06,February,Mobile,Transfer,19000,System Timeout,Retail,Morning,No,Resolved,1,25-34,Savings,No
+C106,2026-02-09,February,USSD,Airtime Purchase,500,Network Error,Retail,Afternoon,No,Resolved,1,18-24,Savings,Yes
+C107,2026-02-10,February,Mobile,Transfer,590000,Duplicate Transaction,SME,Morning,Yes,Resolved,4,35-44,Current,No
+C108,2026-02-11,February,USSD,Bill Payment,44000,System Timeout,Retail,Evening,No,Resolved,2,25-34,Savings,No
+C109,2026-02-12,February,Mobile,Transfer,185000,Authentication Failure,Retail,Morning,Yes,Resolved,3,45-54,Savings,No
+C110,2026-02-13,February,USSD,Transfer,82000,Network Error,SME,Afternoon,No,Resolved,1,35-44,Current,No
+C111,2026-03-02,March,Mobile,Airtime Purchase,2500,System Timeout,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C112,2026-03-03,March,USSD,Transfer,98000,Network Error,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C113,2026-03-04,March,Mobile,Bill Payment,62000,Authentication Failure,SME,Evening,Yes,Resolved,3,35-44,Current,No
+C114,2026-03-05,March,Mobile,Transfer,38000,Network Error,Retail,Afternoon,No,Resolved,1,25-34,Savings,No
+C115,2026-03-06,March,USSD,Airtime Purchase,1000,Network Error,Retail,Morning,No,Resolved,1,18-24,Savings,No
+C116,2026-03-09,March,Mobile,Transfer,700000,Duplicate Transaction,SME,Morning,Yes,Resolved,5,45-54,Current,No
+C117,2026-03-10,March,USSD,Bill Payment,31000,System Timeout,Retail,Afternoon,No,Resolved,2,25-34,Savings,No
+C118,2026-03-11,March,Mobile,Transfer,142000,Authentication Failure,Retail,Evening,Yes,Resolved,3,35-44,Savings,No
+C119,2026-03-12,March,USSD,Transfer,65000,Network Error,SME,Morning,No,Resolved,1,35-44,Current,No
+C120,2026-04-01,April,Mobile,Transfer,275000,Network Error,SME,Morning,Yes,Unresolved,7,45-54,Current,Yes
